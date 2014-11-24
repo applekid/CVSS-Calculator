@@ -96,12 +96,4 @@ def calculator():
         BaseScore = str(BaseScore)
         print "\n Base score: " +BaseScore
  
- 
- 
- 
- 
- 
- 
- 
- 
 calculator()
