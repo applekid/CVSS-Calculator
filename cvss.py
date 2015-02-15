@@ -1,9 +1,8 @@
 import math, sqlite3, os, datetime
  
 def main():
-	print "Running main function."
 	if os.path.isfile('cvss.db'):
-		print "A database file was found."
+		print "A database was loaded."
 		try:
 			conn = sqlite3.connect('cvss.db')
 			db = conn.cursor()
