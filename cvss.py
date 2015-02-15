@@ -1,5 +1,33 @@
-import math
+import math, sqlite3, os, datetime
  
+def main():
+	createdb()
+	calculator()
+
+
+def storedb(date, 
+	    name, 
+	    Av, Ac, Au,
+	    Con, Int, Avl,
+	    baseScore, 
+            temporal, 
+            env, 
+            notes):
+	store = raw_input("Do you want to store the result? Y/N: ")
+	if store != 'Y':
+		print "Canceling store."
+	else:
+		try:
+			conn = sqlite3.connect('cvss.db')
+			db= conn.cursor()
+			db.execute('''INSERT INTO cvss(date, name, Av, Ac, Au, Con, Int, Avl, base, temporal, env, notes)
+                                      VALUES(?,?,?,?,?,?,?,?,?,?,?,?)''', (date, name, Av, Ac, Au, Con, Int, Avl, baseScore, temporal, env, notes))
+		except:
+			print "Storing data failed."
+		conn.commit()
+		db.close()
+
+
 def subScore(value):
         if value == 0:
                 return 0
@@ -95,5 +123,33 @@ def calculator():
         print "Availability Impact: " +Avl
         BaseScore = str(BaseScore)
         print "\n Base score: " +BaseScore
- 
-calculator()
+	date = datetime.datetime.now()
+#I still need to accept input/calculate these values, so for now it's garbage. 
+	temporal = 'test'
+	env = 'test'
+	notes = 'test'
+	storedb(date, vulnName, Av, Ac, Au, Con, Int, Avl, BaseScore, temporal, env, notes)
+	
+def createdb():
+	if os.path.isfile('cvss.db'):
+		try:
+			conn = sqlite3.connect('cvss.db')
+			db= conn.cursor()
+		except sqlite3.Error, e: 
+			print "Error %s:" % e.args[0]
+	else:
+		try:
+			conn = sqlite3.connect('cvss.db')
+			db = conn.cursor()
+			calculator()
+		except: 
+			print "Database creation failed."
+		try:
+			db.execute('''CREATE TABLE cvss
+				(date, name, Av, Ac, Au, Con, Int, Avl, base, temporal, env, notes)''')
+			calculator()
+		except:
+			print "Table creation failed."
+
+
+main()
