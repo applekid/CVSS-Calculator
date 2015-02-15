@@ -1,8 +1,28 @@
 import math, sqlite3, os, datetime
  
 def main():
-	createdb()
-	calculator()
+	print "Running main function."
+	if os.path.isfile('cvss.db'):
+		print "A database file was found."
+		try:
+			conn = sqlite3.connect('cvss.db')
+			db = conn.cursor()
+		except sqlite3.Error, e: 
+			print "Error %s:" % e.args[0]
+		calculator()
+	else:
+		print "No database found. Creating one."
+		try:
+			conn = sqlite3.connect('cvss.db')
+			db = conn.cursor()
+		except: 
+			print "Database creation failed."
+		try:
+			db.execute('''CREATE TABLE cvss
+				(date, name, Av, Ac, Au, Con, Int, Avl, base, temporal, env, notes)''')
+		except:
+			print "Table creation failed."
+		calculator()
 
 
 def storedb(date, 
@@ -19,7 +39,7 @@ def storedb(date,
 	else:
 		try:
 			conn = sqlite3.connect('cvss.db')
-			db= conn.cursor()
+			db = conn.cursor()
 			db.execute('''INSERT INTO cvss(date, name, Av, Ac, Au, Con, Int, Avl, base, temporal, env, notes)
                                       VALUES(?,?,?,?,?,?,?,?,?,?,?,?)''', (date, name, Av, Ac, Au, Con, Int, Avl, baseScore, temporal, env, notes))
 		except:
@@ -130,26 +150,4 @@ def calculator():
 	notes = 'test'
 	storedb(date, vulnName, Av, Ac, Au, Con, Int, Avl, BaseScore, temporal, env, notes)
 	
-def createdb():
-	if os.path.isfile('cvss.db'):
-		try:
-			conn = sqlite3.connect('cvss.db')
-			db= conn.cursor()
-		except sqlite3.Error, e: 
-			print "Error %s:" % e.args[0]
-	else:
-		try:
-			conn = sqlite3.connect('cvss.db')
-			db = conn.cursor()
-			calculator()
-		except: 
-			print "Database creation failed."
-		try:
-			db.execute('''CREATE TABLE cvss
-				(date, name, Av, Ac, Au, Con, Int, Avl, base, temporal, env, notes)''')
-			calculator()
-		except:
-			print "Table creation failed."
-
-
 main()
